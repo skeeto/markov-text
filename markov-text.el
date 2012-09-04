@@ -6,6 +6,9 @@
 (defvar markov-text-database (make-markov-text-database)
   "Database of Markov chain states. Meant to be seeded by source text.")
 
+(defvar markov-text-database-file
+  (concat (or "" (file-name-directory load-file-name)) "main.db.gz"))
+
 (defvar markov-text-state-size 3
   "Number of words in a state. Smaller values lead to more random output.")
 
@@ -16,7 +19,7 @@
 (defun markov-text--get-words (file)
   "Get the words from a file."
   (with-temp-buffer
-    (insert-file-literally file)
+    (insert-file-contents file)
     (split-string (buffer-string) "[ \"]+")))
 
 (defun markov-text-feed (words)
@@ -67,10 +70,6 @@ automatically filled."
   "Reset the Markov chain database."
   (clrhash markov-text-database))
 
-;; Load some sample texts into the database.
-(markov-text-feed-file (concat markov-text-data-root "great-expectations.txt"))
-(markov-text-feed-file (concat markov-text-data-root "a-princess-of-mars.txt"))
-
 (defun markov-text-save (database file)
   "Save a Markov chain to disk."
   (with-temp-buffer
@@ -82,5 +81,23 @@ automatically filled."
   (with-current-buffer (find-file-noselect file)
     (prog1 (read (current-buffer))
       (kill-buffer))))
+
+(defun markov-text--load-samples ()
+  (let ((samples '("great-expectations.txt" "a-princess-of-mars.txt")))
+    (dolist (sample samples)
+      (markov-text-feed-file (concat markov-text-data-root sample)))))
+
+;; Prepare sample chain
+
+(eval-when (compile)
+  (markov-text-reset)
+  (markov-text--load-samples)
+  (markov-text-save markov-text-database markov-text-database-file))
+
+(eval-when (load)
+  (setq markov-text-database (markov-text-load markov-text-database-file)))
+
+(eval-when (eval)
+  (markov-text--load-samples))
 
 (provide 'markov-text)
