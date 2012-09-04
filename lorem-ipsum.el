@@ -12,7 +12,7 @@
         (markov-text-state-size 3))
     (markov-text-feed-file lorem-ipsum-data-file)
     markov-text-database)
-  "Database containing lorem ipsum Markov chains.")
+  "Database containing lorem ipsum Markov chain.")
 
 (defun lorem-ipsum-insert (n &optional no-classic)
   "Insert prefix-argument words of lorem ipsum. If NO-CLASSIC is
