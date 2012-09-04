@@ -1,4 +1,3 @@
-(require 'cl)
 (require 'markov-text)
 
 (defvar lorem-ipsum "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
