@@ -1,6 +1,9 @@
 (require 'cl)
 
-(defvar markov-text-database (make-hash-table :test 'equal)
+(defun make-markov-text-database ()
+  (make-hash-table :test 'equal))
+
+(defvar markov-text-database (make-markov-text-database)
   "Database of Markov chain states. Meant to be seeded by source text.")
 
 (defvar markov-text-state-size 2
@@ -62,5 +65,9 @@ automatically filled."
 
 (markov-text-reset)
 (setq markov-text-state-size 3)
-(markov-text-feed-file "lorem-ipsum.txt")
+(markov-text-feed-file "data/great-expectations.txt")
+(markov-text-feed-file "data/a-princess-of-mars.txt")
+(markov-text-feed-file "data/lorem-ipsum.txt")
 (markov-text-generate 500)
+
+(provide 'markov-text)
