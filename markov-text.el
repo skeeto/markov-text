@@ -71,4 +71,16 @@ automatically filled."
 (markov-text-feed-file (concat markov-text-data-root "great-expectations.txt"))
 (markov-text-feed-file (concat markov-text-data-root "a-princess-of-mars.txt"))
 
+(defun markov-text-save (database file)
+  "Save a Markov chain to disk."
+  (with-temp-buffer
+    (print database (current-buffer))
+    (write-file file)))
+
+(defun markov-text-load (file)
+  "Save a Markov chain to disk."
+  (with-current-buffer (find-file-noselect file)
+    (prog1 (read (current-buffer))
+      (kill-buffer))))
+
 (provide 'markov-text)
