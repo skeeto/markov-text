@@ -6,8 +6,12 @@
 (defvar markov-text-database (make-markov-text-database)
   "Database of Markov chain states. Meant to be seeded by source text.")
 
-(defvar markov-text-state-size 2
+(defvar markov-text-state-size 3
   "Number of words in a state. Smaller values lead to more random output.")
+
+(defvar markov-text-data-root
+  (concat (or "" (file-name-directory load-file-name)) "data/")
+  "Root for finding provided data files.")
 
 (defun markov-text--get-words (file)
   "Get the words from a file."
@@ -63,11 +67,8 @@ automatically filled."
   "Reset the Markov chain database."
   (clrhash markov-text-database))
 
-(markov-text-reset)
-(setq markov-text-state-size 3)
-(markov-text-feed-file "data/great-expectations.txt")
-(markov-text-feed-file "data/a-princess-of-mars.txt")
-(markov-text-feed-file "data/lorem-ipsum.txt")
-(markov-text-generate 500)
+;; Load some sample texts into the database.
+(markov-text-feed-file (concat markov-text-data-root "great-expectations.txt"))
+(markov-text-feed-file (concat markov-text-data-root "a-princess-of-mars.txt"))
 
 (provide 'markov-text)
