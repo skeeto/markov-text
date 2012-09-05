@@ -1,3 +1,34 @@
+;;; markov-text.el --- Generate text with Markov chains
+
+;; This is free and unencumbered software released into the public domain.
+
+;; Author: Christopher Wellons <mosquitopsu@gmail.com>
+;; Version: 1.0
+;; URL: https://github.com/skeeto/markov-text
+
+;;; Commentary:
+
+;; Generates text based on sample input text. Sometimes it produces funny
+;; nonsense.
+
+;; > He wiped himself again, as if he didn't marry her by hand.
+
+;; By default, the Markov chain is generated from the text samples in
+;; `data/`. The chain is stored in `markov-text-database' and text is
+;; generated with `markov-text-generate' and `markov-text-insert'
+;; (interactive with prefix-argument).
+
+;; Paragraph and sentence structure comes from the states of the
+;; Markov chain itself so there's no direct control over the size of
+;; paragraphs and such.
+
+;; Chains can be saved and loaded with `markov-text-save' and
+;; `markov-text-load', appended with more sample text with
+;; `markov-text-feed-file', and adjusted output randomness with
+;; `markov-text-state-size' (larger is less random).
+
+;;; Code:
+
 (require 'cl)
 
 (defun make-markov-text-database ()
@@ -101,3 +132,5 @@ automatically filled."
   (markov-text--load-samples))
 
 (provide 'markov-text)
+
+;;; markov-text.el ends here

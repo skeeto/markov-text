@@ -1,3 +1,22 @@
+;;; lorem-ipsum.el --- Generate lorem ipsum by Markov chain
+
+;; This is free and unencumbered software released into the public domain.
+
+;; Author: Christopher Wellons <mosquitopsu@gmail.com>
+;; Version: 1.0
+;; URL: https://github.com/skeeto/markov-text
+
+;;; Commentary:
+
+;; Generates lorem ipsum using the Markov chain functions in
+;; `markov-text'. Use `lorem-ipsum-insert' with a prefix argument to
+;; insert filler text into the current buffer.
+
+;;  This package maintains its own Markov chain database in
+;; `lorem-ipsum-database'.
+
+;;; Code:
+
 (require 'markov-text)
 
 (defvar lorem-ipsum "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
@@ -29,3 +48,5 @@ true, don't start with the classic 'Lorem ipsum ...' line."
      (buffer-string))))
 
 (provide 'lorem-ipsum)
+
+;;; lorem-ipsum.el ends here
