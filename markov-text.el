@@ -34,6 +34,9 @@
 (defun make-markov-text-database ()
   (make-hash-table :test 'equal))
 
+(defvar markov-text-split-regex "[ \"]+"
+  "Regex used to split words in an input text.")
+
 (defvar markov-text-database (make-markov-text-database)
   "Database of Markov chain states. Meant to be seeded by source text.")
 
@@ -51,7 +54,7 @@
   "Get the words from a file."
   (with-temp-buffer
     (insert-file-contents file)
-    (split-string (buffer-string) "[ \"]+")))
+    (split-string (buffer-string) markov-text-split-regex)))
 
 (defun markov-text-feed (words)
   "Feed the word list to the database."
