@@ -134,6 +134,22 @@ automatically filled."
 (eval-when (eval)
   (markov-text--load-samples))
 
+(defun markov-text-to-dot (database file)
+  "Dump a database out in DOT format (Graphviz) for visualization."
+  (let ((print-escape-newlines t))
+    (labels ((cat (list) (mapconcat 'identity list " ")))
+      (with-temp-buffer
+        (insert "digraph {\n")
+        (maphash (lambda (k v)
+                   (let ((from (cat k)))
+                     (dolist (to (remove-duplicates v :test 'equal))
+                       (insert (format "  %S -> %S [label=%S];\n"
+                                       from (cat (append (cdr k) (list to)))
+                                       (concat " " to))))))
+                 database)
+        (insert "}\n")
+        (write-file file)))))
+
 (provide 'markov-text)
 
 ;;; markov-text.el ends here
