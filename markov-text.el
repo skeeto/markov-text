@@ -123,16 +123,12 @@ automatically filled."
 
 ;; Prepare sample chain
 
-(eval-when (compile)
-  (markov-text-reset)
-  (markov-text--load-samples)
-  (markov-text-save markov-text-database markov-text-database-file))
-
-(eval-when (load)
-  (setq markov-text-database (markov-text-load markov-text-database-file)))
-
-(eval-when (eval)
-  (markov-text--load-samples))
+(eval-when (load eval)
+  (if (file-exists-p markov-text-database-file)
+      (setq markov-text-database (markov-text-load markov-text-database-file))
+    (markov-text-reset)
+    (markov-text--load-samples)
+    (markov-text-save markov-text-database markov-text-database-file)))
 
 (defun markov-text-to-dot (database file)
   "Dump a database out in DOT format (Graphviz) for visualization."
