@@ -23,28 +23,33 @@
 ;; paragraphs and such.
 
 ;; Chains can be saved and loaded with `markov-text-save' and
-;; `markov-text-load', appended with more sample text with
-;; `markov-text-feed-file', and adjusted output randomness with
-;; `markov-text-state-size' (larger is less random).
+;; `markov-text-load', and appended with more sample text with
+;; `markov-text-feed-file'.
 
 ;;; Code:
 
 (require 'cl)
 
-(defun make-markov-text-database ()
-  (make-hash-table :test 'equal))
+(defun make-markov-text-database (state-size)
+  "Create a new, empty Markov chain. The state size is the number
+of consecutive words that make up a state. Larger is less random
+but more structured."
+  (let ((table (make-hash-table :test 'equal)))
+    (puthash :state-size state-size table)
+    table))
+
+(defun markov-text-state-size ()
+  "Determine the state size of the current database."
+  (gethash :state-size markov-text-database))
 
 (defvar markov-text-split-regex "[ \"]+"
   "Regex used to split words in an input text.")
 
-(defvar markov-text-database (make-markov-text-database)
+(defvar markov-text-database (make-markov-text-database 3)
   "Database of Markov chain states. Meant to be seeded by source text.")
 
 (defvar markov-text-database-file
   (concat (or "" (file-name-directory load-file-name)) "main.db.gz"))
-
-(defvar markov-text-state-size 3
-  "Number of words in a state. Smaller values lead to more random output.")
 
 (defvar markov-text-data-root
   (concat (or "" (file-name-directory load-file-name)) "data/")
@@ -58,9 +63,9 @@
 
 (defun markov-text-feed (words)
   "Feed the word list to the database."
-  (while (nth markov-text-state-size words)
-    (let* ((state (subseq words 0 markov-text-state-size))
-           (next (nth markov-text-state-size words))
+  (while (nth (markov-text-state-size) words)
+    (let* ((state (subseq words 0 (markov-text-state-size)))
+           (next (nth (markov-text-state-size) words))
            (nexts (gethash state markov-text-database)))
       (puthash state (cons next nexts) markov-text-database))
     (pop words)))
@@ -72,7 +77,7 @@
 (defun markov-text--hash-keys (hash)
   "Return a list of a hash table's keys."
   (let ((keys ()))
-    (maphash (lambda (k v) (push k keys)) markov-text-database)
+    (maphash (lambda (k v) (if (listp k) (push k keys))) markov-text-database)
     keys))
 
 (defun markov-text-generate (n &optional no-fill)
@@ -104,7 +109,8 @@ automatically filled."
 
 (defun markov-text-reset ()
   "Reset the Markov chain database."
-  (clrhash markov-text-database))
+  (setq markov-text-database
+        (make-markov-text-database (markov-text-state-size))))
 
 (defun markov-text-save (database file)
   "Save a Markov chain to disk."
@@ -132,21 +138,21 @@ automatically filled."
     (markov-text--load-samples)
     (markov-text-save markov-text-database markov-text-database-file)))
 
-(defun markov-text-to-dot (database file)
-  "Dump a database out in DOT format (Graphviz) for visualization."
+(defun markov-text-to-dot (file)
+  "Dump the current chain out in DOT format (Graphviz) for visualization."
   (let ((print-escape-newlines t))
     (labels ((cat (list) (mapconcat 'identity list " ")))
-      (with-temp-buffer
+      (with-temp-file file
         (insert "digraph {\n")
         (maphash (lambda (k v)
-                   (let ((from (cat k)))
-                     (dolist (to (remove-duplicates v :test 'equal))
-                       (insert (format "  %S -> %S [label=%S];\n"
-                                       from (cat (append (cdr k) (list to)))
-                                       (concat " " to))))))
-                 database)
-        (insert "}\n")
-        (write-file file)))))
+                   (when (listp k)
+                     (let ((from (cat k)))
+                       (dolist (to (remove-duplicates v :test 'equal))
+                         (insert (format "  %S -> %S [label=%S];\n"
+                                         from (cat (append (cdr k) (list to)))
+                                         (concat " " to)))))))
+                 markov-text-database)
+        (insert "}\n")))))
 
 (provide 'markov-text)
 

@@ -27,8 +27,7 @@
   "File containing Cicero's 'De finibus bonorum et malorum'.")
 
 (defvar lorem-ipsum-database
-  (let ((markov-text-database (make-markov-text-database))
-        (markov-text-state-size 3))
+  (let ((markov-text-database (make-markov-text-database 3)))
     (markov-text-feed-file lorem-ipsum-data-file)
     markov-text-database)
   "Database containing lorem ipsum Markov chain.")
